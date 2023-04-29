@@ -1,8 +1,9 @@
 from blender_renderer.renderer import Renderer
-import eicl.config
-from pyJoules.energy_meter import measure_energy
 from pyJoules.device.rapl_device import RaplPackageDomain
+from pyJoules.energy_meter import measure_energy
 from pyJoules.handler.csv_handler import CSVHandler
+
+import eicl.config
 
 
 def main():
@@ -10,7 +11,10 @@ def main():
     csv_handler = CSVHandler("measure_energy_blender.csv")
     blender_path = eicl.config.BLENDER_PATH
     cpu = eicl.config.CPU
-    scene_file = eicl.config.SCENE_PATH
+    if cpu:
+        scene_file = eicl.config.SCENE_PATH
+    else:
+        scene_file = eicl.config.SCENE_PATH_GPU
     temp_dir = "/tmp/"
     render_settings = {
         "engine": "CYCLES",

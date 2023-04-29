@@ -1,77 +1,74 @@
+import numpy as np
 import pycuda.autoinit
 import pycuda.driver as drv
-import numpy as np
 from pycuda.compiler import SourceModule
+from pyJoules.device.rapl_device import RaplPackageDomain
+from pyJoules.energy_meter import measure_energy
+from pyJoules.handler.csv_handler import CSVHandler
 
-def perform_bench():
-    # Define the matrix dimensions
-    N = 4096
-    M = 4096
 
-    # Define the CUDA kernel code for matrix multiplication
-    mod = SourceModule("""
-        __global__ void matrix_mult(float* a, float* b, float* c, int n, int m) {
-            int i = blockIdx.x * blockDim.x + threadIdx.x;
-            int j = blockIdx.y * blockDim.y + threadIdx.y;
+def main():
+    csv_handler = CSVHandler("measure_energy_pycuda.csv")
 
-            if (i < n && j < m) {
-                float sum = 0.0;
-                for (int k = 0; k < n; k++) {
-                    sum += a[i * n + k] * b[k * m + j];
+    @measure_energy(handler=csv_handler, domains=[RaplPackageDomain(0)])
+    def perform_bench():
+        # Define the matrix dimensions
+        N = 4096
+        M = 4096
+
+        # Define the CUDA kernel code for matrix multiplication
+        mod = SourceModule(
+            """
+            __global__ void matrix_mult(float* a, float* b, float* c, int n, int m) {
+                int i = blockIdx.x * blockDim.x + threadIdx.x;
+                int j = blockIdx.y * blockDim.y + threadIdx.y;
+
+                if (i < n && j < m) {
+                    float sum = 0.0;
+                    for (int k = 0; k < n; k++) {
+                        sum += a[i * n + k] * b[k * m + j];
+                    }
+                    c[i * m + j] = sum;
                 }
-                c[i * m + j] = sum;
             }
-        }
-    """)
+        """
+        )
 
-    # Get the kernel function
-    matrix_mult_kernel = mod.get_function("matrix_mult")
+        # Get the kernel function
+        matrix_mult_kernel = mod.get_function("matrix_mult")
 
-    # Create the input matrices on the CPU
-    a = np.random.rand(N, M).astype(np.float32)
-    b = np.random.rand(M, N).astype(np.float32)
+        # Create the input matrices on the CPU
+        a = np.random.rand(N, M).astype(np.float32)
+        b = np.random.rand(M, N).astype(np.float32)
 
-    # Create the output matrix on the GPU
-    c_gpu = drv.mem_alloc(N * N * np.dtype(np.float32).itemsize)
+        # Create the output matrix on the GPU
+        c_gpu = drv.mem_alloc(N * N * np.dtype(np.float32).itemsize)
 
-    # Set the block and grid sizes for the kernel
-    block_size = (32, 32, 1)
-    grid_size = ((N + block_size[0] - 1) // block_size[0], (N + block_size[1] - 1) // block_size[1], 1)
+        # Set the block and grid sizes for the kernel
+        block_size = (32, 32, 1)
+        grid_size = (
+            (N + block_size[0] - 1) // block_size[0],
+            (N + block_size[1] - 1) // block_size[1],
+            1,
+        )
 
-    # Call the kernel function to perform matrix multiplication
-    matrix_mult_kernel(drv.In(a), drv.In(b), c_gpu, np.int32(N), np.int32(M), block=block_size, grid=grid_size)
+        # Call the kernel function to perform matrix multiplication
+        matrix_mult_kernel(
+            drv.In(a),
+            drv.In(b),
+            c_gpu,
+            np.int32(N),
+            np.int32(M),
+            block=block_size,
+            grid=grid_size,
+        )
 
-    # Copy the output matrix from the GPU to the CPU
-    c = np.empty_like(a)
-    drv.memcpy_dtoh(c, c_gpu)
+        # Copy the output matrix from the GPU to the CPU
+        c = np.empty_like(a)
+        drv.memcpy_dtoh(c, c_gpu)
 
-import time 
-import GPUtil
-
-duration = 10
-gpus = GPUtil.getGPUs()
-
-shit = []
-
-start_time = time.time()
-# Print information about each GPU
-while time.time() - start_time < duration: 
-    
     perform_bench()
-    
-    for gpu in gpus:
-        
-#         print(time.time())
-        
-        GpuMemusage = gpu.memoryUsed/1024
-    
-        shit.append(GpuMemusage/1024)
-        
-        print(shit)
-        
-    time.sleep(1)
 
-print(shit)
 
 # import numpy as np
 # import pyopencl as cl
