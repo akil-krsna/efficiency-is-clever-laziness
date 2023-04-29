@@ -1,7 +1,6 @@
 import pycuda.autoinit
 import pycuda.driver as drv
 import numpy as np
-import numpy as np
 import pyopencl as cl
 import time 
 import GPUtil
