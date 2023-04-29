@@ -1,2 +1,1 @@
-all = ["blender"]
-__all__ = ["blender"]
+from .blender import *
