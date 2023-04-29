@@ -3,43 +3,45 @@ import eicl.config
 from pyJoules.energy_meter import measure_energy
 from pyJoules.handler.csv_handler import CSVHandler
 
-# Set the path to your Blender executable
-blender_path = eicl.config.BLENDER_PATH
-cpu = eicl.config.CPU
-# Set the path to your Blender scene file
-if cpu:
-    scene_file = eicl.config.SCENE_PATH
-else:
-    scene_file = eicl.config.SCENE_PATH_GPU
 
-# Initialize the renderer with the Blender executable path and a temporary directory to use
-renderer = Renderer(blender_path, "/tmp")
+def main():
+    # Set the path to your Blender executable
+    blender_path = eicl.config.BLENDER_PATH
+    cpu = eicl.config.CPU
+    # Set the path to your Blender scene file
+    if cpu:
+        scene_file = eicl.config.SCENE_PATH
+        # Set the render settings
+        render_settings = {
+            "engine": "CYCLES",
+            "resolution_x": 1920,
+            "resolution_y": 1080,
+            "samples": 128,
+        }
+    else:
+        scene_file = eicl.config.SCENE_PATH_GPU
 
-csv_handler = CSVHandler("measure_energy.csv")
+    temp_dir = "./tmp/"
+    # Initialize the renderer with the Blender executable path and a temporary directory to use
+    renderer = Renderer(blender_path, temp_dir)
 
-# Load the scene file
-with open(scene_file, "rb") as f:
-    scene_bytes = f.read()
+    csv_handler = CSVHandler("measure_energy_blender.csv")
 
-# Create a dictionary mapping texture names to texture data
+    # Load the scene file
+    with open(scene_file, "rb") as f:
+        scene_bytes = f.read()
 
-render_settings = renderer.get_render_settings(scene_bytes=scene_bytes)
-# Set the render settings
-# render_settings = {
-#     "engine": "CYCLES",
-#     "resolution_x": 1920,
-#     "resolution_y": 1080,
-#     "samples": 128,
-# }
+    # Create a dictionary mapping texture names to texture data
 
+    # render_settings = renderer.get_render_settings(scene_bytes=scene_bytes)
 
-@measure_energy(handler=csv_handler)
-# Render the image
-def render():
-    img_bytes = renderer.render(
-        scene_bytes,
-        render_settings=render_settings,
-    )
+    @measure_energy(handler=csv_handler)
+    # Render the image
+    def render():
+        img_bytes = renderer.render(
+            scene_bytes,
+            render_settings=render_settings,
+        )
 
 
 # Save the image to a file
