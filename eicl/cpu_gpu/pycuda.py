@@ -1,16 +1,12 @@
 import pycuda.autoinit
 import pycuda.driver as drv
 import numpy as np
-import numpy as np
-import pyopencl as cl
-import time 
-import GPUtil
 from pycuda.compiler import SourceModule
 
 def perform_bench():
     # Define the matrix dimensions
-    N = 1024
-    M = 1024
+    N = 4096
+    M = 4096
 
     # Define the CUDA kernel code for matrix multiplication
     mod = SourceModule("""
@@ -48,38 +44,9 @@ def perform_bench():
     # Copy the output matrix from the GPU to the CPU
     c = np.empty_like(a)
     drv.memcpy_dtoh(c, c_gpu)
-    
 
-def clbench():
-    anp = np.random.rand(50000).astype(np.float32)
-    bnp = np.random.rand(50000).astype(np.float32)
-
-    ctx = cl.create_some_context()
-    queue = cl.CommandQueue(ctx)
-
-    mf = cl.mem_flags
-    ag = cl.Buffer(ctx,mf.READ_ONLY|mf.COPY_HOST_PTR,hostbuf=anp)
-    bg = cl.Buffer(ctx,mf.READ_ONLY|mf.COPY_HOST_PTR,hostbuf=bnp)
-
-    prg = cl.Program(ctx, """
-    __kernel void sum(
-        __global const float *a_g, __global const float *b_g, __global float *res_g)
-    {
-      int gid = get_global_id(0);
-      res_g[gid] = a_g[gid] + b_g[gid];
-    }
-    """).build()
-
-    resg = cl.Buffer(ctx,mf.WRITE_ONLY,anp.nbytes)
-    knl = prg.sum
-    knl(queue,anp.shape,None,ag,bg,resg)
-
-    resnp = np.empty_like(anp)
-    cl.enqueue_copy(queue,resnp,resg)
-
-#     print(resnp-(anp+bnp))
-#     print(np.linalg.norm(resnp-(anp+bnp)))
-#     assert np.allclose(resnp,anp+bnp)
+import time 
+import GPUtil
 
 duration = 10
 gpus = GPUtil.getGPUs()
@@ -91,7 +58,6 @@ start_time = time.time()
 while time.time() - start_time < duration: 
     
     perform_bench()
-    clbench()
     
     for gpu in gpus:
         
@@ -106,3 +72,36 @@ while time.time() - start_time < duration:
     time.sleep(1)
 
 print(shit)
+
+# import numpy as np
+# import pyopencl as cl
+
+# anp = np.random.rand(50000).astype(np.float32)
+# bnp = np.random.rand(50000).astype(np.float32)
+
+# ctx = cl.create_some_context()
+# queue = cl.CommandQueue(ctx)
+
+# mf = cl.mem_flags
+# ag = cl.Buffer(ctx,mf.READ_ONLY|mf.COPY_HOST_PTR,hostbuf=anp)
+# bg = cl.Buffer(ctx,mf.READ_ONLY|mf.COPY_HOST_PTR,hostbuf=bnp)
+
+# prg = cl.Program(ctx, """
+# __kernel void sum(
+#     __global const float *a_g, __global const float *b_g, __global float *res_g)
+# {
+#   int gid = get_global_id(0);
+#   res_g[gid] = a_g[gid] + b_g[gid];
+# }
+# """).build()
+
+# resg = cl.Buffer(ctx,mf.WRITE_ONLY,anp.nbytes)
+# knl = prg.sum
+# knl(queue,anp.shape,None,ag,bg,resg)
+
+# resnp = np.empty_like(anp)
+# cl.enqueue_copy(queue,resnp,resg)
+
+# print(resnp-(anp+bnp))
+# print(np.linalg.norm(resnp-(anp+bnp)))
+# assert np.allclose(resnp,anp+bnp)
