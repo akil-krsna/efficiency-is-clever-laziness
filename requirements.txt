@@ -4,3 +4,4 @@ disk-bench
 stress
 cbtool
 pyjoules
+subprocess
