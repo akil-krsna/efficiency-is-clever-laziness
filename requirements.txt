@@ -1,0 +1,11 @@
+dbmsbenchmarker
+blender-renderer
+power
+pymeter
+palb
+disk-bench
+stress
+cbtool
+gputil
+psutil
+cbtool
