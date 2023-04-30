@@ -50,7 +50,7 @@ if __name__ == "__main__":
                 pycuda_data = pd.read_csv("./measure_energy_pycuda.csv", sep=";")
                 uj = pycuda_data.iloc[-1, -1]
                 time = pycuda_data.iloc[-1, -2]
-                score = uj / (time)
+                score = uj / (time * 4096 * 4086 * 2)
         elif module == "mixed":
             ...
         else:
