@@ -4,9 +4,9 @@ from eicl import cpu_gpu, mixed
 import pandas as pd
 
 if sys.argv[0]:
-    module = sys.argv[0]
+    module = sys.argv[1]
 try:
-    submodule = sys.argv[1]
+    submodule = sys.argv[2]
 except:
     pass
 root_help = """Syntax
@@ -16,7 +16,7 @@ type python eicl module_name help for help"""
 if __name__ == "__main__":
     if module:
         if module.lower() == "cpu_gpu":
-            if submodule == "help":
+            if not submodule or submodule == "help":
                 print(
                     """
     Usage:
