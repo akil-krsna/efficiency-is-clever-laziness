@@ -1,7 +1,5 @@
 blender-renderer
-pymeter
-disk-bench
-stress
-cbtool
 pyjoules
-subprocess
+pynvml
+pandas
+pycuda

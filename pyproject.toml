@@ -1,0 +1,16 @@
+[project]
+name = "eicl"
+version = "0.0.1"
+authors = [
+    {name = "pupper emeritus"},
+    {name = "adhit-420"},
+    {name = "krsna-akil},
+    {name = "Rishik00"}
+]
+description = "A command line application and a library that can be used to test the efficiency of a computer."
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Pythonn :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]

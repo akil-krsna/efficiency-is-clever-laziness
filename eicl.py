@@ -3,10 +3,12 @@ import sys
 from eicl import cpu_gpu, mixed
 import pandas as pd
 
-if sys.argv[1]:
-    module = sys.argv[1]
-if sys.argv[2]:
-    submodule = sys.argv[2]
+if sys.argv[0]:
+    module = sys.argv[0]
+try:
+    submodule = sys.argv[1]
+except:
+    pass
 root_help = """Syntax
 python eicl module_name submodule_name
 available modules : cpu_gpu, mixed
@@ -46,7 +48,7 @@ if __name__ == "__main__":
                 print(f"Efficiency Score : {score:.2f}")
 
             elif submodule.lower() == "pycuda":
-                cpu_gpu.pycuda.main()
+                cpu_gpu.py_cuda.main()
                 pycuda_data = pd.read_csv("./measure_energy_pycuda.csv", sep=";")
                 uj = pycuda_data.iloc[-1, -1]
                 time = pycuda_data.iloc[-1, -2]
