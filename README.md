@@ -1,12 +1,8 @@
-# E.I.C.L (Efficiency is clever laziness)
+## E.I.C.L -- Efficiency Is Clever Laziness
 
-## Introduction
+Developed as a part of **Hexathon's Hackathon** for environmental sustainability, this command line application and library is used to benchmark the efficiency of a computer by providing a score which bases the performance per watt of servers and computers, thereby ranking different systems on efficiency. 
 
-It is a command line application and a library that can be used to test the efficiency of a computer. It gives a score which bases the performance per watt of the computer. The score is used as a diagnostic tool to determine whether the efficiency of a computer on reducing voltage or overclocking is increasing.
+The **benchmarking module** consists of **CPU and GPU benchmarking** alongside a **power monitoring module**. The score is used as a diagnostic tool to determine whether the efficiency of a computer on reducing voltage or overclocking is increasing.
 
-## Future Scope
 
-- Database integration to have a centralized store of average efficiency of a given computer component
-- An interactive GUI for regular users
-- BIOS Level tweaks and auto optimization of parameters
-- Introducing I/O, Memory, HTTP Request, and other benchmarks replicating various loads that servers regularly see
+
